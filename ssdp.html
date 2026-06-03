@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+		<title>Roku Remote</title>
+		<script src="ssdp.js"></script>
+		<script src="spin.js"></script>
+		<style>
+			table, td, th {
+				border-collapse: collapse;
+				border: 0px solid black;
+				text-align: center;
+			}
+			.crap {
+				background: #FE9A2E;
+				padding: 1px;
+				border-spacing: 1px;
+				border: 3px solid black;
+			}
+			.nicecolor {
+				background: white;
+			}
+			.nicecolor:hover {
+				background: #33CCCC;
+			}
+
+			img {
+				opacity: 1; /* Change this to .5 for 50% opacity */
+				-webkit-transition: .25s;
+				-moz-transition: .25s;
+				-ms-transition: .25s;
+				-o-transition: .25s;
+				transition: .25s;
+			}
+			img:hover {
+				opacity: 0.5;
+			}
+
+			img:active {
+				opacity: 1;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div id="root">
+
+			<div id="pad">
+				<input type="button" id="start" value="Find Roku" disabled />
+				<a href="https://s3.amazonaws.com/AAStatic/roku/credits.html" target="_blank">Credits and Known Issues</a>
+				
+				<div id="spinnn" style="display: none;">
+					<h2>Finding Roku...</h2>
+				</div>
+				<div id="main" style="display: none;">
+					<table style="width:100%" >
+						<tr>
+							<td>
+							<div id="Back"  class="nicecolor" ><img src="svg/left-arrow8.svg" alt="Smiley face" height="33%" width="33%">
+							</div></td>
+							<td><div id="blank"></div></td>
+							<td>
+							<div id="Home" class="nicecolor" ><img src="svg/home168.svg" alt="Smiley face" height="33%" width="33%">
+							</div></td>
+						</tr>
+
+						<tr>
+							<td><div id="blank"></div></td>
+							<!-- <td><div id="up"><img src="svg/black388.svg" alt="Smiley face" height="33%" width="33%"></div></td> -->
+							<td>
+							<div id="Up" class="nicecolor" ><img src="svg/left224.svg" alt="Smiley face" height="33%" width="33%" style="-webkit-transform: rotate(90deg);" >
+							</div></td>
+							<td><div id="blank"></div></td>
+						</tr>
+
+						<tr>
+							<td>
+							<div id="Left" class="nicecolor" ><img src="svg/left224.svg" alt="Smiley face" height="33%" width="33%">
+							</div></td>
+							<td>
+							<div id="Select" class="nicecolor"><img src="svg/ok3.svg" alt="Smiley face" height="33%" width="33%">
+							</div></td>
+							<td>
+							<div id="Right"  class="nicecolor" ><img src="svg/left224.svg" alt="Smiley face" height="33%" width="33%" style="-webkit-transform: rotate(180deg);">
+							</div></td>
+						</tr>
+
+						<tr>
+							<td><div id="blank"></div></td>
+							<td>
+							<div id="Down"  class="nicecolor" ><img src="svg/left224.svg" alt="Smiley face" height="33%" width="33%" style="-webkit-transform: rotate(270deg);">
+							</div></td>
+							<td><div id="blank"></div></td>
+						</tr>
+
+						<tr>
+							<td>
+							<div id="InstantReplay"  class="nicecolor" ><img src="svg/circulararrow10.svg" alt="Smiley face" height="33%" width="33%">
+							</div></td>
+							<td><div id="blank"></div></td>
+							<td>
+							<div id="Info" class="nicecolor" ><img src="svg/asterisk5.svg" alt="Smiley face" height="33%" width="33%">
+							</div></td>
+						</tr>
+
+						<tr>
+							<td>
+							<div id="Rev"  class="nicecolor" ><img src="svg/rewind28.svg" alt="Smiley face" height="33%" width="33%">
+							</div></td>
+							<td>
+							<div id="Play"  class="nicecolor" ><img src="svg/pause16.svg" alt="Smiley face" height="33%" width="33%">
+							</div></td>
+							<td>
+							<div id="Fwd" class="nicecolor" ><img src="svg/fast19.svg" alt="Smiley face" height="33%" width="33%">
+							</div></td>
+						</tr>
+
+						<tr>
+							<td></td>
+						</tr>
+						<table style="width:100%;border: 1px" class="crap" >
+							<tr>
+
+								<td> URL:
+								<input type="text" id="urlinpu" value="http://www.w3schools.com/html/mov_bbb.mp4">
+								</td>
+								<td>
+								<input type="button" id="sendToRoku" value="Play !" />
+								</td>
+								
+							</tr>
+							<tr>
+								<td> <div id="rokuAppNotice" style="display:none">Our app needs to be present on your roku for this functionality 
+									It can be added to your roku at this <a href="https://my.roku.com/account/add?channel=LZZZCQ" target="blank">URL </a> , Restart this app after Roku app installation completes.</div>
+								</td>
+							</tr>
+						</table>
+
+						<div id="output" style="font-family: Arial; font-size: 12 ; display: none;">
+							<table style="width:100%;border: 0px"  >
+								<tr>
+									<td><div id="friendly_name" ></div></td>
+
+								</tr>
+							</table>
+						</div>
+
+					</table>
+				</div>
+			</div>
+		</div>
+		<div id="channelThing" style="overflow-y:auto; width:100%;height:200px;"></div>
+	</body>
+</html>
