@@ -21,13 +21,50 @@ function getLocalIP() {
 const LOCAL_IP = getLocalIP();
 const LOCATION = `http://${LOCAL_IP}:${ECP_PORT}/`;
 
-// ── Fake channel list ─────────────────────────────────────────────────────────
+// ── Fake channel list + icons ─────────────────────────────────────────────────
 const CHANNELS = [
-    { id: '63126', name: 'Roku Media Player',  version: '5.1.218' },
-    { id: 'tvinput.hdmi1', name: 'HDMI 1',     version: '1.0.0' },
-    { id: '2285', name: 'Hulu',                version: '4.1.218' },
-    { id: '12', name: 'Netflix',               version: '4.1.218' },
+    { id: '63126',          name: 'Roku Media Player', version: '5.1.218' },
+    { id: 'tvinput.hdmi1',  name: 'HDMI 1',            version: '1.0.0'   },
+    { id: '2285',           name: 'Hulu',               version: '4.1.218' },
+    { id: '12',             name: 'Netflix',            version: '4.1.218' },
+    { id: 'tvinput.hdmi2',  name: 'HDMI 2',            version: '1.0.0'   },
 ];
+
+// SVG icons keyed by channel id
+const ICONS = {
+    '63126': `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="64" viewBox="0 0 96 64">
+        <rect width="96" height="64" rx="8" fill="#6C2DC7"/>
+        <polygon points="36,20 36,44 64,32" fill="white" opacity="0.9"/>
+    </svg>`,
+
+    'tvinput.hdmi1': `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="64" viewBox="0 0 96 64">
+        <rect width="96" height="64" rx="8" fill="#1a2a4a"/>
+        <text x="48" y="28" font-family="monospace" font-size="11" font-weight="bold" fill="#60a5fa" text-anchor="middle">HDMI</text>
+        <text x="48" y="46" font-family="monospace" font-size="18" font-weight="bold" fill="white" text-anchor="middle">1</text>
+    </svg>`,
+
+    'tvinput.hdmi2': `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="64" viewBox="0 0 96 64">
+        <rect width="96" height="64" rx="8" fill="#1a3a2a"/>
+        <text x="48" y="28" font-family="monospace" font-size="11" font-weight="bold" fill="#4ade80" text-anchor="middle">HDMI</text>
+        <text x="48" y="46" font-family="monospace" font-size="18" font-weight="bold" fill="white" text-anchor="middle">2</text>
+    </svg>`,
+
+    '2285': `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="64" viewBox="0 0 96 64">
+        <rect width="96" height="64" rx="8" fill="#1ce783"/>
+        <text x="48" y="38" font-family="Arial,sans-serif" font-size="20" font-weight="bold" fill="#0a0a0a" text-anchor="middle" dominant-baseline="middle">hulu</text>
+    </svg>`,
+
+    '12': `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="64" viewBox="0 0 96 64">
+        <rect width="96" height="64" rx="8" fill="#E50914"/>
+        <text x="48" y="38" font-family="Arial,sans-serif" font-size="34" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">N</text>
+    </svg>`,
+
+    '_default': `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="64" viewBox="0 0 96 64">
+        <rect width="96" height="64" rx="8" fill="#1c1c2b"/>
+        <rect x="28" y="20" width="40" height="24" rx="3" fill="none" stroke="#555" stroke-width="1.5"/>
+        <circle cx="48" cy="32" r="5" fill="#555"/>
+    </svg>`,
+};
 
 // ── ECP HTTP server ───────────────────────────────────────────────────────────
 const ecpServer = http.createServer((req, res) => {
@@ -59,11 +96,12 @@ const ecpServer = http.createServer((req, res) => {
         return res.end(`<?xml version="1.0" encoding="UTF-8"?>\n<apps>\n${apps}\n</apps>`);
     }
 
-    // Channel icon — return a tiny transparent PNG
+    // Channel icon — return a distinctive SVG per channel
     if (url.startsWith('/query/icon/')) {
-        const PIXEL = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
-        res.writeHead(200, { 'Content-Type': 'image/png' });
-        return res.end(PIXEL);
+        const chanId = url.split('/query/icon/')[1];
+        const svg = ICONS[chanId] || ICONS['_default'];
+        res.writeHead(200, { 'Content-Type': 'image/svg+xml' });
+        return res.end(svg);
     }
 
     // Keypress
