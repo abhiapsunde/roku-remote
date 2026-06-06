@@ -1,41 +1,45 @@
 'use strict';
 
-var rokurl         = null;
-var isAgentPresent = false;
-var ROKU_AGENT_ID  = 63126;
+var rokurl   = null;
+var devices  = [];   // all devices found in last scan
 
-var maindiv, wheel, connect, rokuNotice, scanStatus, deviceList, remoteScreen, devicePicker;
+var maindiv, wheel, connect, scanStatus, deviceList;
+var remoteScreen, devicePicker;
+var switcherSheet, sheetBackdrop, switcherList, sheetRescan;
 
 window.addEventListener('load', function () {
     ['Back','Home','Up','Down','Left','Right','Select','InstantReplay','Info','Rev','Play','Fwd']
         .forEach(function (id) { document.getElementById(id).onclick = handleKeypress; });
 
-    rokuNotice   = document.getElementById('rokuAppNotice');
-    maindiv      = document.getElementById('main');          // remote body (hidden until connected)
-    wheel        = document.getElementById('spinnn');        // scan animation
-    connect      = document.getElementById('start');         // "Scan Again" button
+    maindiv      = document.getElementById('main');
+    wheel        = document.getElementById('spinnn');
+    connect      = document.getElementById('start');
     scanStatus   = document.getElementById('scanStatus');
     deviceList   = document.getElementById('deviceList');
     remoteScreen = document.getElementById('remoteScreen');
     devicePicker = document.getElementById('devicePicker');
+    switcherSheet  = document.getElementById('switcherSheet');
+    sheetBackdrop  = document.getElementById('sheetBackdrop');
+    switcherList   = document.getElementById('switcherList');
+    sheetRescan    = document.getElementById('sheetRescan');
 
-    document.getElementById('sendToRoku').onclick = playOnRoku;
-    document.getElementById('changeDevice').onclick = showPicker;
+    connect.onclick     = startScan;
+    document.getElementById('changeDevice').onclick = openSwitcher;
+    sheetRescan.onclick = function () { rescanFromSheet(); };
+    sheetBackdrop.onclick = closeSheet;
 
-    // restore last device from localStorage on startup
+    // restore last used device
     var cached    = localStorage.getItem('rokurl');
     var cachedAge = parseInt(localStorage.getItem('rokurlAge') || '0', 10);
     if (cached && (Date.now() - cachedAge) < 3600000) {
         rokurl = cached;
-        var cachedName = localStorage.getItem('rokuName') || 'Roku Device';
-        document.getElementById('friendly_name').textContent = cachedName;
+        document.getElementById('friendly_name').textContent =
+            localStorage.getItem('rokuName') || 'Roku Device';
         showRemote();
         thingsTodoAfterGettingRokuUrl();
     } else {
         startScan();
     }
-
-    connect.onclick = startScan;
 });
 
 // ── Discovery ─────────────────────────────────────────────────────────────────
@@ -43,8 +47,6 @@ window.addEventListener('load', function () {
 function showPicker() {
     remoteScreen.style.display = 'none';
     devicePicker.style.display = 'flex';
-    rokurl = null;
-    startScan();
 }
 
 function showRemote() {
@@ -58,34 +60,40 @@ function startScan() {
     scanStatus.textContent = 'Scanning your network…';
     wheel.classList.remove('idle');
 
-    window.roku.discover().then(function (devices) {
+    window.roku.discover().then(function (found) {
+        devices = found || [];
         wheel.classList.add('idle');
         connect.disabled = false;
 
-        if (!devices || devices.length === 0) {
+        if (devices.length === 0) {
             scanStatus.textContent = 'No Roku devices found.';
             deviceList.innerHTML = '<p class="no-dev">Make sure your Roku is on the same network.</p>';
+            updateDeviceCount();
             return;
         }
 
-        scanStatus.textContent = 'Found ' + devices.length + ' device' + (devices.length > 1 ? 's' : '') + '.';
-        deviceList.innerHTML = '';
+        scanStatus.textContent = 'Found ' + devices.length +
+            ' device' + (devices.length > 1 ? 's' : '') + '.';
+        renderPickerList(devices);
+        updateDeviceCount();
 
-        devices.forEach(function (device) {
-            var card = document.createElement('div');
-            card.className = 'device-card';
-            card.innerHTML =
-                '<div class="dc-info">' +
-                    '<div class="dc-name">' + esc(device.name) + '</div>' +
-                    '<div class="dc-meta">' + esc(device.ip) + (device.model ? '  ·  ' + esc(device.model) : '') + '</div>' +
-                '</div>' +
-                '<svg class="dc-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>';
-            card.onclick = function () { connectToDevice(device); };
-            deviceList.appendChild(card);
-        });
-
-        // auto-connect if only one device
         if (devices.length === 1) connectToDevice(devices[0]);
+    });
+}
+
+function renderPickerList(list) {
+    deviceList.innerHTML = '';
+    list.forEach(function (device) {
+        var card = document.createElement('div');
+        card.className = 'device-card';
+        card.innerHTML =
+            '<div><div class="dc-name">' + esc(device.name) + '</div>' +
+            '<div class="dc-meta">' + esc(device.ip) +
+                (device.model ? '  ·  ' + esc(device.model) : '') + '</div></div>' +
+            '<svg class="dc-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
+                '<polyline points="9 18 15 12 9 6"/></svg>';
+        card.onclick = function () { connectToDevice(device); };
+        deviceList.appendChild(card);
     });
 }
 
@@ -94,10 +102,78 @@ function connectToDevice(device) {
     localStorage.setItem('rokurl',    rokurl);
     localStorage.setItem('rokurlAge', Date.now().toString());
     localStorage.setItem('rokuName',  device.name || 'Roku Device');
-
     document.getElementById('friendly_name').textContent = device.name || 'Roku Device';
     showRemote();
+    closeSheet();
     thingsTodoAfterGettingRokuUrl();
+}
+
+// ── Bottom-sheet switcher ─────────────────────────────────────────────────────
+
+function openSwitcher() {
+    renderSwitcherList(devices);
+    switcherSheet.classList.add('open');
+    sheetBackdrop.classList.add('open');
+}
+
+function closeSheet() {
+    switcherSheet.classList.remove('open');
+    sheetBackdrop.classList.remove('open');
+}
+
+function renderSwitcherList(list) {
+    switcherList.innerHTML = '';
+
+    if (!list || list.length === 0) {
+        switcherList.innerHTML = '<p class="no-dev" style="padding:8px 0">No devices — use Rescan.</p>';
+        return;
+    }
+
+    list.forEach(function (device) {
+        var isCurrent = device.location.trim() === rokurl;
+        var card = document.createElement('div');
+        card.className = 'switcher-card' + (isCurrent ? ' current' : '');
+        card.innerHTML =
+            '<div class="sc-icon">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">' +
+                    '<rect x="2" y="5" width="20" height="14" rx="3"/>' +
+                    '<circle cx="12" cy="12" r="2"/>' +
+                '</svg>' +
+            '</div>' +
+            '<div class="sc-info">' +
+                '<div class="sc-name">' + esc(device.name) + '</div>' +
+                '<div class="sc-meta">' + esc(device.ip) +
+                    (device.model ? ' · ' + esc(device.model) : '') + '</div>' +
+            '</div>' +
+            (isCurrent ? '<span class="sc-badge">ACTIVE</span>' : '');
+
+        if (!isCurrent) {
+            card.onclick = function () { connectToDevice(device); };
+        }
+        switcherList.appendChild(card);
+    });
+}
+
+function updateDeviceCount() {
+    var el = document.getElementById('deviceCount');
+    if (devices.length > 1) {
+        el.textContent = devices.length + ' devices';
+        el.style.display = '';
+    } else {
+        el.style.display = 'none';
+    }
+}
+
+function rescanFromSheet() {
+    sheetRescan.disabled = true;
+    switcherList.innerHTML = '<p class="no-dev" style="padding:8px 0">Scanning…</p>';
+
+    window.roku.discover().then(function (found) {
+        devices = found || [];
+        sheetRescan.disabled = false;
+        updateDeviceCount();
+        renderSwitcherList(devices);
+    });
 }
 
 // ── ECP calls ─────────────────────────────────────────────────────────────────
@@ -113,40 +189,28 @@ function handleKeypress() {
     rokuAPICall(rokurl + 'keypress/' + this.id);
 }
 
-function playOnRoku() {
-    if (isAgentPresent) {
-        var encoded = encodeURIComponent(document.getElementById('urlinpu').value);
-        rokuAPICall(rokurl + 'launch/' + ROKU_AGENT_ID + '?myurl=' + encoded);
-    } else {
-        rokuNotice.style.display = 'block';
-    }
-}
-
 // ── After connecting ──────────────────────────────────────────────────────────
 
 function thingsTodoAfterGettingRokuUrl() {
-    isAgentPresent = false;
     document.getElementById('channelThing').innerHTML = '';
 
     fetch(rokurl)
         .then(function (r) { return r.text(); })
         .then(function (text) {
-            var parser   = new DOMParser();
-            var xml      = parser.parseFromString(text, 'text/xml');
-            var friendly = val(xml, 'friendlyName') || 'Roku Device';
-            var model    = val(xml, 'modelName')    || '';
+            var friendly = xmlVal(text, 'friendlyName') || 'Roku Device';
+            var model    = xmlVal(text, 'modelName')    || '';
+            var label    = friendly + (model ? ' · ' + model : '');
 
-            document.getElementById('friendly_name').textContent =
-                friendly + (model ? ' · ' + model : '');
-            localStorage.setItem('rokuName', friendly + (model ? ' · ' + model : ''));
+            document.getElementById('friendly_name').textContent = label;
+            localStorage.setItem('rokuName', label);
 
             populateChannelPad();
         })
-        .catch(function (e) {
-            console.error('Could not reach Roku at', rokurl, e);
+        .catch(function () {
             rokurl = null;
             localStorage.removeItem('rokurl');
             showPicker();
+            startScan();
         });
 }
 
@@ -162,16 +226,17 @@ function populateChannelPad() {
 
             for (var i = 0; i < apps.length; i++) {
                 (function (app) {
-                    var id = app.getAttribute('id');
-                    if (parseInt(id, 10) === ROKU_AGENT_ID) {
-                        isAgentPresent = true;
-                        rokuNotice.style.display = 'none';
-                    }
+                    var id    = app.getAttribute('id');
+                    var name  = app.textContent.trim() || id;
 
-                    var img = document.createElement('img');
-                    img.title  = app.textContent || id;
-                    img.width  = 72;
-                    img.height = 48;
+                    var tile  = document.createElement('div');
+                    tile.className = 'channel-tile';
+
+                    var img   = document.createElement('img');
+                    img.alt   = name;
+
+                    var label = document.createElement('span');
+                    label.textContent = name;
 
                     fetch(rokurl + 'query/icon/' + id)
                         .then(function (r) { return r.blob(); })
@@ -179,8 +244,11 @@ function populateChannelPad() {
                         .catch(function () {});
 
                     var launchUrl = rokurl + 'launch/' + id;
-                    img.addEventListener('click', function () { rokuAPICall(launchUrl); });
-                    container.appendChild(img);
+                    tile.addEventListener('click', function () { rokuAPICall(launchUrl); });
+
+                    tile.appendChild(img);
+                    tile.appendChild(label);
+                    container.appendChild(tile);
                 })(apps[i]);
             }
         });
@@ -188,9 +256,9 @@ function populateChannelPad() {
 
 // ── Util ──────────────────────────────────────────────────────────────────────
 
-function val(xml, tag) {
-    var el = xml.getElementsByTagName(tag)[0];
-    return el && el.childNodes[0] ? el.childNodes[0].nodeValue : null;
+function xmlVal(text, tag) {
+    var m = text.match(new RegExp('<' + tag + '>([^<]+)</' + tag + '>'));
+    return m ? m[1].trim() : null;
 }
 
 function esc(s) {
