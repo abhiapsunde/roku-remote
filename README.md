@@ -6,11 +6,11 @@
 
 ## The Story
 
-In 2017, I wanted to play a video URL on my Roku without fishing the physical remote out from under the couch cushions. There was no app for it. So I built one — a Chrome App that discovered your Roku over SSDP, let you paste an MP4 URL, and hit Play. The remote control was an afterthought. A few SVG buttons wired to Roku's External Control Protocol. One page of JavaScript, hand-typed, no frameworks, no Stack Overflow for the hard parts.
+In 2017, I wanted to play a video URL on my Roku without fishing the physical remote out from under the couch cushions. There was no app for it. So I built one: a Chrome App that discovered your Roku over SSDP, let you paste an MP4 URL, and hit Play. The remote control was an afterthought. A few SVG buttons wired to Roku's External Control Protocol. One page of JavaScript, hand-typed, no frameworks, no Stack Overflow for the hard parts.
 
 I shipped it. Then I mostly forgot about it.
 
-Thousands of people installed it. It accumulated over a hundred reviews and a 3.1-star average. People used it for things I never imagined — fixing a muted TV without digging up the remote, reconnecting a Roku that had lost Wi-Fi. The remote half, which I'd treated as a feature footnote, turned out to matter more than the URL player I'd actually built it for. The one-star reviews were mostly people trying to stream YouTube, which was never going to work.
+Thousands of people installed it. It accumulated over a hundred reviews and a 3.1-star average. People used it for things I never imagined: fixing a muted TV without digging up the remote, reconnecting a Roku that had lost Wi-Fi. The remote half, which I'd treated as a feature footnote, turned out to matter more than the URL player I'd actually built it for. The one-star reviews were mostly people trying to stream YouTube, which was never going to work.
 
 I learned three things from that:
 
@@ -26,11 +26,11 @@ Then Google deprecated Chrome Apps. I walked away. The extension still exists in
 
 ## The Resurrection
 
-In 2026 I came back to it — not out of guilt, but curiosity. I wanted to see what AI-assisted development actually felt like on a real project with real history. I pulled the source code straight out of the Chrome Web Store `.crx`, dropped it in a repo, and started porting.
+In 2026 I came back to it. Not out of guilt, but curiosity. I wanted to see what AI-assisted development actually felt like on a real project with real history. I pulled the source code straight out of the Chrome Web Store `.crx`, dropped it in a repo, and started porting.
 
-The original `ssdp.js` still works. The SSDP discovery logic, the ECP HTTP calls, the channel icon fetching — all of it is structurally sound. Nine years later the code holds up. What changed is everything around it: the platform (Chrome Apps → Electron), the tooling, and the interface.
+The original `ssdp.js` still works. The SSDP discovery logic, the ECP HTTP calls, the channel icon fetching: all of it is structurally sound. Nine years later the code holds up. What changed is everything around it: the platform (Chrome Apps to Electron), the tooling, and the interface.
 
-The remote-control half lives on. The URL player is gone — Roku's ecosystem moved on and I don't want to maintain a companion channel I no longer have. What remains is a clean, fast, multi-device Roku remote that works on your desktop.
+The remote-control half lives on. The URL player is gone. Roku's ecosystem moved on and I don't want to maintain a companion channel I no longer have. What remains is a clean, fast, multi-device Roku remote that works on your desktop.
 
 ---
 
@@ -45,7 +45,7 @@ roku-remote/
 
 ### Original Chrome App
 
-The source as it shipped. `ssdp.js` is 362 lines of hand-written UDP multicast discovery and ECP remote control. `manifest.json` requires `chrome.socket` for raw UDP — the API that made this impossible to port to a normal web page and eventually made it impossible to maintain when Google killed Chrome Apps.
+The source as it shipped. `ssdp.js` is 362 lines of hand-written UDP multicast discovery and ECP remote control. `manifest.json` requires `chrome.socket` for raw UDP, the API that made this impossible to port to a normal web page and eventually made it impossible to maintain when Google killed Chrome Apps.
 
 Notable: the variable names include `amuk` and `tukde` (Marathi for "pieces/fragments"). There's a comment that says `"stop the fucking wheel"`. It was written by a human, alone, before AI could write code.
 
@@ -53,11 +53,11 @@ Notable: the variable names include `amuk` and `tukde` (Marathi for "pieces/frag
 
 A clean port of the remote functionality:
 
-- **Multi-device** — discovers all Roku devices on the network simultaneously (SSDP multicast, 5-second scan), shows a device picker, remembers your last device
-- **Device switcher** — tap the device name in the header to slide up a sheet and switch between all found devices
-- **Channel grid** — full 3-column tile grid of your installed channels, not a scrolling strip
-- **Dark UI** — Outfit font, Roku purple accent, cross-shaped d-pad with circular OK button
-- **No URL player** — that ship has sailed
+- **Multi-device:** discovers all Roku devices on the network simultaneously (SSDP multicast, 5-second scan), shows a device picker, remembers your last device
+- **Device switcher:** tap the device name in the header to slide up a sheet and switch between all found devices
+- **Channel grid:** full 3-column tile grid of your installed channels, not a scrolling strip
+- **Dark UI:** Outfit font, Roku purple accent, cross-shaped d-pad with circular OK button
+- **No URL player:** that ship has sailed
 
 ### Emulator
 
@@ -86,11 +86,11 @@ node index.js --port 8061 --name "Bedroom" &
 cd ../electron-app && npm install && npm start
 ```
 
-The app scans for 5 seconds, shows all discovered devices, auto-connects if there's only one. Works with real Roku devices too — just skip the emulator.
+The app scans for 5 seconds, shows all discovered devices, auto-connects if there's only one. Works with real Roku devices too, just skip the emulator.
 
 ---
 
-## How Embedding Works
+## How It Works
 
 The Electron app uses `dgram` for UDP (SSDP discovery) in the main process, bridged to the renderer via Electron's IPC. The renderer does all ECP HTTP calls directly with `fetch`. No native modules beyond Electron itself.
 
@@ -106,9 +106,9 @@ return devices        channel icons
 
 ## On AI-Assisted Development
 
-The port took one session. The original took weeks of evenings in 2017. That's not a knock on the original — the original was figuring things out from scratch: reading the Roku ECP docs, understanding SSDP, writing raw UDP socket code in a Chrome App sandbox with almost no documentation.
+The port took one session. The original took weeks of evenings in 2017. That's not a knock on the original. The original was figuring things out from scratch: reading the Roku ECP docs, understanding SSDP, writing raw UDP socket code in a Chrome App sandbox with almost no documentation.
 
-The AI session was different. The hard decisions (SSDP → dgram, chrome.storage → localStorage, chrome.app.window → BrowserWindow) were obvious once you understood the original. The AI executed. The understanding came from nine years of context that only a human who shipped the original could have.
+The AI session was different. The hard decisions (SSDP to dgram, chrome.storage to localStorage, chrome.app.window to BrowserWindow) were obvious once you understood the original. The AI executed. The understanding came from nine years of context that only a human who shipped the original could have.
 
 The code that holds up is the 2017 code. The UI that looks good is the 2026 code. Make of that what you will.
 
