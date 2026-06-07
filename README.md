@@ -1,12 +1,12 @@
 # Roku Remote
 
-> A hand-coded Chrome App from 2017, abandoned when Google killed the platform, resurrected in 2026 with the help of AI.
+> A hand-coded Chrome App from around 2015, abandoned when Google killed the platform, resurrected in 2026 with the help of AI.
 
 ---
 
 ## The Story
 
-In 2017, I wanted to play a video URL on my Roku without fishing the physical remote out from under the couch cushions. There was no app for it. So I built one: a Chrome App that discovered your Roku over SSDP, let you paste an MP4 URL, and hit Play. The remote control was an afterthought. A few SVG buttons wired to Roku's External Control Protocol. One page of JavaScript, hand-typed, no frameworks, no Stack Overflow for the hard parts.
+Around 2015, I wanted to play a video URL on my Roku without fishing the physical remote out from under the couch cushions. There was no app for it. So I built one: a Chrome App that discovered your Roku over SSDP, let you paste an MP4 URL, and hit Play. The remote control was an afterthought. A few SVG buttons wired to Roku's External Control Protocol. One page of JavaScript, hand-typed, no frameworks, no Stack Overflow for the hard parts.
 
 I shipped it. Then I mostly forgot about it.
 
@@ -28,7 +28,7 @@ Then Google deprecated Chrome Apps. I walked away. The extension still exists in
 
 In 2026 I came back to it. Not out of guilt, but curiosity. I wanted to see what AI-assisted development actually felt like on a real project with real history. I pulled the source code straight out of the Chrome Web Store `.crx`, dropped it in a repo, and started porting.
 
-The original `ssdp.js` still works. The SSDP discovery logic, the ECP HTTP calls, the channel icon fetching: all of it is structurally sound. Nine years later the code holds up. What changed is everything around it: the platform (Chrome Apps to Electron), the tooling, and the interface.
+The original `ssdp.js` still works. The SSDP discovery logic, the ECP HTTP calls, the channel icon fetching: all of it is structurally sound. Eleven years later the code holds up. What changed is everything around it: the platform (Chrome Apps to Electron), the tooling, and the interface.
 
 The remote-control half lives on. The URL player is gone. Roku's ecosystem moved on and I don't want to maintain a companion channel I no longer have. What remains is a clean, fast, multi-device Roku remote that works on your desktop.
 
@@ -38,7 +38,7 @@ The remote-control half lives on. The URL player is gone. Roku's ecosystem moved
 
 ```
 roku-remote/
-├── original-chrome-app/    # The original 2017 source, extracted from the .crx
+├── original-chrome-app/    # The original ~2015 source, extracted from the .crx
 ├── electron-app/           # The 2026 Electron port
 └── emulator/               # Node.js fake Roku for testing (SSDP + ECP)
 ```
@@ -106,11 +106,11 @@ return devices        channel icons
 
 ## On AI-Assisted Development
 
-The port took one session. The original took weeks of evenings in 2017. That's not a knock on the original. The original was figuring things out from scratch: reading the Roku ECP docs, understanding SSDP, writing raw UDP socket code in a Chrome App sandbox with almost no documentation.
+The port took one session. The original took weeks of evenings back in 2015. That's not a knock on the original. The original was figuring things out from scratch: reading the Roku ECP docs, understanding SSDP, writing raw UDP socket code in a Chrome App sandbox with almost no documentation.
 
-The AI session was different. The hard decisions (SSDP to dgram, chrome.storage to localStorage, chrome.app.window to BrowserWindow) were obvious once you understood the original. The AI executed. The understanding came from nine years of context that only a human who shipped the original could have.
+The AI session was different. The hard decisions (SSDP to dgram, chrome.storage to localStorage, chrome.app.window to BrowserWindow) were obvious once you understood the original. The AI executed. The understanding came from eleven years of context that only a human who shipped the original could have.
 
-The code that holds up is the 2017 code. The UI that looks good is the 2026 code. Make of that what you will.
+The code that holds up is the original 2015 code. The UI that looks good is the 2026 code. Make of that what you will.
 
 ---
 
