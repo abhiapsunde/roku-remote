@@ -180,7 +180,7 @@ function rescanFromSheet() {
 
 function rokuAPICall(url) {
     if (!rokurl) { showPicker(); return; }
-    fetch(url, { method: 'POST' }).catch(function (e) {
+    window.roku.fetch(url, 'POST').catch(function (e) {
         console.error('ECP call failed:', e);
     });
 }
@@ -194,8 +194,11 @@ function handleKeypress() {
 function thingsTodoAfterGettingRokuUrl() {
     document.getElementById('channelThing').innerHTML = '';
 
-    fetch(rokurl)
-        .then(function (r) { return r.text(); })
+    window.roku.fetch(rokurl, 'GET')
+        .then(function (res) {
+            if (!res.ok) throw new Error('failed');
+            return res.text;
+        })
         .then(function (text) {
             var friendly = xmlVal(text, 'friendlyName') || 'Roku Device';
             var model    = xmlVal(text, 'modelName')    || '';
@@ -215,9 +218,21 @@ function thingsTodoAfterGettingRokuUrl() {
 }
 
 function populateChannelPad() {
-    fetch(rokurl + 'query/apps')
-        .then(function (r) { return r.text(); })
+    window.roku.fetch(rokurl + 'query/apps', 'GET')
+        .then(function (res) {
+            if (!res.ok) {
+                document.getElementById('channelThing').innerHTML =
+                    '<div class="ecp-warning"><strong>Channel list unavailable</strong>' +
+                    'Your Roku is blocking remote control access. To fix:<br>' +
+                    '1. On Roku: Settings → System → Advanced system settings<br>' +
+                    '2. Select "Control by mobile apps"<br>' +
+                    '3. Change from "Limited" to "Enabled"</div>';
+                return null;
+            }
+            return res.text;
+        })
         .then(function (text) {
+            if (!text) return;
             var parser    = new DOMParser();
             var xml       = parser.parseFromString(text, 'text/xml');
             var apps      = xml.getElementsByTagName('app');
@@ -238,9 +253,8 @@ function populateChannelPad() {
                     var label = document.createElement('span');
                     label.textContent = name;
 
-                    fetch(rokurl + 'query/icon/' + id)
-                        .then(function (r) { return r.blob(); })
-                        .then(function (blob) { img.src = URL.createObjectURL(blob); })
+                    window.roku.fetch(rokurl + 'query/icon/' + id, 'GET')
+                        .then(function (res) { if (res.dataUrl) img.src = res.dataUrl; })
                         .catch(function () {});
 
                     var launchUrl = rokurl + 'launch/' + id;

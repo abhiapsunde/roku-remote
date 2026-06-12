@@ -27,6 +27,7 @@ function createWindow() {
         },
     });
     win.loadFile('renderer/index.html');
+    win.webContents.openDevTools({ mode: 'detach' });
 }
 
 app.whenReady().then(createWindow);
@@ -85,6 +86,23 @@ ipcMain.handle('ssdp-discover', async () => {
     );
 
     return devices;
+});
+
+ipcMain.handle('roku-fetch', async (event, url, method) => {
+    console.log('[roku-fetch]', method || 'GET', url);
+    try {
+        const res = await fetch(url, { method: method || 'GET', signal: AbortSignal.timeout(5000) });
+        const ct  = res.headers.get('content-type') || '';
+        console.log('[roku-fetch] response', res.status, ct);
+        if (!ct.startsWith('text') && !ct.includes('xml')) {
+            const buf = Buffer.from(await res.arrayBuffer());
+            return { ok: true, dataUrl: 'data:' + ct + ';base64,' + buf.toString('base64') };
+        }
+        return { ok: res.ok, text: await res.text() };
+    } catch (e) {
+        console.error('[roku-fetch] error:', e.message);
+        return { ok: false, error: e.message };
+    }
 });
 
 function xmlVal(text, tag) {

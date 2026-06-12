@@ -254,20 +254,27 @@
 
         /* ── Channel grid ─────────────────────────────── */
         .channels-section {
-            width: 100%; padding-top: 18px; padding-bottom: 8px;
+            align-self: stretch; min-width: 0;
+            padding-top: 18px; padding-bottom: 8px;
         }
         .channels-header {
             font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
             text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px;
         }
+        .ecp-warning {
+            font-size: 11px; color: var(--text-dim); line-height: 1.5;
+            background: rgba(255,255,255,0.05); border-radius: 8px;
+            padding: 10px 12px; border: 1px solid var(--border);
+        }
+        .ecp-warning strong { color: var(--text); display: block; margin-bottom: 4px; }
         #channelThing {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 10px; min-width: 0;
         }
         .channel-tile {
             display: flex; flex-direction: column; align-items: center; gap: 5px;
-            cursor: pointer;
+            cursor: pointer; min-width: 0;
         }
         .channel-tile img {
             width: 100%; aspect-ratio: 3/2; border-radius: 8px; object-fit: cover;
