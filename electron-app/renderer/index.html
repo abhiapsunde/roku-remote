@@ -251,6 +251,15 @@
         .media-btn:active { box-shadow: var(--pressed); }
         .media-play { background: var(--surface-hi); border-color: var(--border-hi); }
         .media-play img { opacity: 0.9; }
+        .media-btn.vol-btn { position: relative; }
+        .media-btn.vol-btn::after {
+            content: 'Roku TV / HDMI-CEC only'; position: absolute; bottom: calc(100% + 6px); left: 50%;
+            transform: translateX(-50%); background: rgba(0,0,0,0.85);
+            color: #fff; font-size: 10px; white-space: nowrap;
+            padding: 3px 7px; border-radius: 5px; pointer-events: none;
+            opacity: 0; transition: opacity 0.15s;
+        }
+        .media-btn.vol-btn:hover::after { opacity: 1; }
 
         /* ── Channel grid ─────────────────────────────── */
         .channels-section {
@@ -424,13 +433,16 @@
     <div class="remote-wrap">
         <div id="main">
 
-            <!-- Back + Home -->
+            <!-- Back + Home + Power -->
             <div class="row">
                 <button class="fn-btn" id="Back">
                     <img src="svg/left-arrow8.svg" alt="">Back
                 </button>
                 <button class="fn-btn" id="Home">
                     <img src="svg/home168.svg" alt="">Home
+                </button>
+                <button class="fn-btn" id="Power" title="Power">
+                    <img src="svg/power.svg" alt="">Power
                 </button>
             </div>
 
@@ -460,6 +472,13 @@
                 <button class="media-btn" id="Rev"><img src="svg/rewind28.svg" alt="Rewind"></button>
                 <button class="media-btn media-play" id="Play"><img src="svg/pause16.svg" alt="Play"></button>
                 <button class="media-btn" id="Fwd"><img src="svg/fast19.svg" alt="Forward"></button>
+            </div>
+
+            <!-- Volume -->
+            <div class="row">
+                <button class="media-btn vol-btn" id="VolumeDown"><img src="svg/volume-down.svg" alt="Vol-"></button>
+                <button class="media-btn vol-btn" id="VolumeMute"><img src="svg/mute.svg" alt="Mute"></button>
+                <button class="media-btn vol-btn" id="VolumeUp"><img src="svg/volume-up.svg" alt="Vol+"></button>
             </div>
 
         </div>

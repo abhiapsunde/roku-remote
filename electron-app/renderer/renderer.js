@@ -8,7 +8,7 @@ var remoteScreen, devicePicker;
 var switcherSheet, sheetBackdrop, switcherList, sheetRescan;
 
 window.addEventListener('load', function () {
-    ['Back','Home','Up','Down','Left','Right','Select','InstantReplay','Info','Rev','Play','Fwd']
+    ['Back','Home','Power','Up','Down','Left','Right','Select','InstantReplay','Info','Rev','Play','Fwd','VolumeDown','VolumeMute','VolumeUp']
         .forEach(function (id) { document.getElementById(id).onclick = handleKeypress; });
 
     maindiv      = document.getElementById('main');
@@ -190,6 +190,7 @@ function handleKeypress() {
 }
 
 // ── After connecting ──────────────────────────────────────────────────────────
+
 
 function thingsTodoAfterGettingRokuUrl() {
     document.getElementById('channelThing').innerHTML = '';
