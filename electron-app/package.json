@@ -3,14 +3,39 @@
   "version": "1.0.0",
   "description": "Roku URL player and remote — Electron port of the original Chrome App",
   "main": "main.js",
+  "author": "Abhi Apsunde <abhiapsunde@gmail.com>",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux"
   },
   "keywords": [],
-  "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "build": {
+    "appId": "com.abhiapsunde.roku-remote",
+    "productName": "Roku Remote",
+    "publish": {
+      "provider": "github"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.utilities"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Utility"
+    }
+  },
   "dependencies": {
     "electron": "^42.3.2"
+  },
+  "devDependencies": {
+    "electron-builder": "^26.15.3"
   }
 }
