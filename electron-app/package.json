@@ -1,6 +1,6 @@
 {
   "name": "roku-remote",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Roku URL player and remote — Electron port of the original Chrome App",
   "main": "main.js",
   "author": "Abhi Apsunde <abhiapsunde@gmail.com>",
@@ -22,7 +22,8 @@
     "appId": "com.abhiapsunde.roku-remote",
     "productName": "Roku Remote",
     "publish": {
-      "provider": "github"
+      "provider": "github",
+      "draft": false
     },
     "mac": {
       "target": "dmg",
