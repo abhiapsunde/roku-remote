@@ -22,8 +22,7 @@
     "appId": "com.abhiapsunde.roku-remote",
     "productName": "Roku Remote",
     "publish": {
-      "provider": "github",
-      "releaseType": "release"
+      "provider": "github"
     },
     "mac": {
       "target": "dmg",
