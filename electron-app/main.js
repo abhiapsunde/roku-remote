@@ -27,7 +27,7 @@ function createWindow() {
         },
     });
     win.loadFile('renderer/index.html');
-    win.webContents.openDevTools({ mode: 'detach' });
+    if (!app.isPackaged) win.webContents.openDevTools({ mode: 'detach' });
 }
 
 app.whenReady().then(createWindow);
