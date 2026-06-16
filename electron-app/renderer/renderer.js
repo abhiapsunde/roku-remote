@@ -191,9 +191,10 @@ function handleKeypress() {
 
 // ── After connecting ──────────────────────────────────────────────────────────
 
-
 function thingsTodoAfterGettingRokuUrl() {
     document.getElementById('channelThing').innerHTML = '';
+    document.getElementById('ecpNotice').style.display = 'none';
+    document.querySelector('.channels-section').style.display = '';
 
     window.roku.fetch(rokurl, 'GET')
         .then(function (res) {
@@ -219,15 +220,15 @@ function thingsTodoAfterGettingRokuUrl() {
 }
 
 function populateChannelPad() {
+    var ecpNotice      = document.getElementById('ecpNotice');
+    var channelSection = document.querySelector('.channels-section');
+
     window.roku.fetch(rokurl + 'query/apps', 'GET')
         .then(function (res) {
             if (!res.ok) {
-                document.getElementById('channelThing').innerHTML =
-                    '<div class="ecp-warning"><strong>Channel list unavailable</strong>' +
-                    'Your Roku is blocking remote control access. To fix:<br>' +
-                    '1. On Roku: Settings → System → Advanced system settings<br>' +
-                    '2. Select "Control by mobile apps"<br>' +
-                    '3. Change from "Limited" to "Enabled"</div>';
+                document.getElementById('channelThing').innerHTML = '';
+                channelSection.style.display = 'none';
+                ecpNotice.style.display = 'block';
                 return null;
             }
             return res.text;
